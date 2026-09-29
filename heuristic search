@@ -1,0 +1,125 @@
+import heapq
+
+# -------------------------------
+# PART 1: A* SEARCH
+# -------------------------------
+
+# Graph representation
+graph = {
+    'S': [('A', 3), ('C', 2)],
+    'A': [('B', 4)],
+    'B': [('D', 5)],
+    'C': [('D', 2)],
+    'D': []
+}
+
+# Heuristic values
+h = {
+    'S': 4,
+    'A': 7,
+    'B': 5,
+    'C': 2,
+    'D': 0
+}
+
+
+def a_star(start, goal):
+    # Priority queue: (f, g, node, path)
+    priority_queue = []
+
+    # Initial node
+    g_cost = 0
+    f_cost = g_cost + h[start]
+
+    heapq.heappush(priority_queue, (f_cost, g_cost, start, [start]))
+
+    visited = set()
+
+    print("----- A* SEARCH -----")
+    print("Node\tg(n)\th(n)\tf(n)")
+
+    while priority_queue:
+
+        f, g, current, path = heapq.heappop(priority_queue)
+
+        # Skip already visited nodes
+        if current in visited:
+            continue
+
+        visited.add(current)
+
+        print(f"{current}\t{g}\t{h[current]}\t{f}")
+
+        # Goal reached
+        if current == goal:
+            print("\nNodes explored:", " -> ".join(visited))
+            print("Final Path:", " -> ".join(path))
+            print("Total Cost:", g)
+            return path, g
+
+        # Explore neighboring nodes
+        for neighbor, cost in graph[current]:
+
+            if neighbor not in visited:
+
+                new_g = g + cost
+                new_f = new_g + h[neighbor]
+
+                heapq.heappush(
+                    priority_queue,
+                    (new_f, new_g, neighbor, path + [neighbor])
+                )
+
+
+# Run A* Search
+a_star('S', 'D')
+
+
+# -------------------------------
+# PART 2: HILL CLIMBING
+# -------------------------------
+
+def function(x):
+    return (x - 5) ** 2 + 10
+
+
+def hill_climbing(start_x, step=1):
+    current_x = start_x
+    current_value = function(current_x)
+
+    print("\n\n----- HILL CLIMBING -----")
+    print("x\tf(x)")
+    print(f"{current_x}\t{current_value}")
+
+    while True:
+
+        # Generate neighboring values
+        left_x = current_x - step
+        right_x = current_x + step
+
+        left_value = function(left_x)
+        right_value = function(right_x)
+
+        # Find the better neighbor for minimization
+        if left_value < current_value:
+            current_x = left_x
+            current_value = left_value
+
+        elif right_value < current_value:
+            current_x = right_x
+            current_value = right_value
+
+        else:
+            # No better neighbor found
+            break
+
+        print(f"{current_x}\t{current_value}")
+
+    print("\nApproximate minimum x =", current_x)
+    print("Minimum value f(x) =", current_value)
+
+    return current_x, current_value
+
+
+# Start with initial value x = 0
+hill_climbing(0)
